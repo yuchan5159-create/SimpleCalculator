@@ -208,6 +208,7 @@ private void AppendNumber(string number)
                 case Keys.D5 or Keys.NumPad5: AppendNumber("5"); break;
                 case Keys.D6 or Keys.NumPad6: AppendNumber("6"); break;
                 case Keys.D7 or Keys.NumPad7: AppendNumber("7"); break;
+                case Keys.D8 when e.Shift: SetOperator("×"); break;
                 case Keys.D8 or Keys.NumPad8: AppendNumber("8"); break;
                 case Keys.D9 or Keys.NumPad9: AppendNumber("9"); break;
                 case Keys.Add or Keys.Oemplus when e.Shift: SetOperator("+"); break;
