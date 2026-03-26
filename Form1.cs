@@ -86,7 +86,8 @@ private void AppendNumber(string number)
             _isNewInput = true;
         }
 
-         // CE
+        
+ // CE
         private void button1_Click(object sender, EventArgs e)
         {
             _currentInput = "0";
@@ -94,7 +95,8 @@ private void AppendNumber(string number)
             RefreshDisplay();
         }
 
-         // C
+       
+  // C
         private void button2_Click(object sender, EventArgs e)
         {
             _firstValue = 0;
@@ -105,7 +107,8 @@ private void AppendNumber(string number)
             textBox2.Text = "";
         }
 
-         // del
+        
+ // del
         private void button3_Click(object sender, EventArgs e)
         {
             if (!_isNewInput && _currentInput.Length > 0)
