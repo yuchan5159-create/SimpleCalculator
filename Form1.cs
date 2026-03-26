@@ -92,7 +92,8 @@ namespace SimpleCalculator
 
         private static double ParseFactor(string expr, ref int pos)
         {
-            SkipSpaces(expr, ref pos);
+           
+ SkipSpaces(expr, ref pos);
             if (pos < expr.Length && expr[pos] == '-') { pos++; return -ParseFactor(expr, ref pos); }
             if (pos < expr.Length && expr[pos] == '+') { pos++; return ParseFactor(expr, ref pos); }
 
