@@ -52,6 +52,10 @@
             e = new Button();
             name = new Label();
             history = new Button();
+            괄호1 = new Button();
+            괄호2 = new Button();
+            대괄1 = new Button();
+            대괄2 = new Button();
             SuspendLayout();
             // 
             // Ctext
@@ -349,12 +353,56 @@
             history.UseVisualStyleBackColor = true;
             history.Click += history_Click;
             // 
+            // 괄호1
+            // 
+            괄호1.Location = new Point(64, 448);
+            괄호1.Name = "괄호1";
+            괄호1.Size = new Size(113, 43);
+            괄호1.TabIndex = 24;
+            괄호1.Text = "(";
+            괄호1.UseVisualStyleBackColor = true;
+            괄호1.Click += 괄호1_Click;
+            // 
+            // 괄호2
+            // 
+            괄호2.Location = new Point(174, 448);
+            괄호2.Name = "괄호2";
+            괄호2.Size = new Size(113, 43);
+            괄호2.TabIndex = 25;
+            괄호2.Text = ")";
+            괄호2.UseVisualStyleBackColor = true;
+            괄호2.Click += 괄호2_Click;
+            // 
+            // 대괄1
+            // 
+            대괄1.Location = new Point(284, 448);
+            대괄1.Name = "대괄1";
+            대괄1.Size = new Size(113, 43);
+            대괄1.TabIndex = 26;
+            대괄1.Text = "{";
+            대괄1.UseVisualStyleBackColor = true;
+            대괄1.Click += 대괄1_Click;
+            // 
+            // 대괄2
+            // 
+            대괄2.Location = new Point(397, 448);
+            대괄2.Name = "대괄2";
+            대괄2.Size = new Size(134, 43);
+            대괄2.TabIndex = 27;
+            대괄2.Text = "}";
+            대괄2.UseVisualStyleBackColor = true;
+            대괄2.Click += 대괄2_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Black;
             ClientSize = new Size(655, 559);
+            Controls.Add(대괄2);
+            Controls.Add(대괄1);
+            Controls.Add(괄호2);
+            Controls.Add(괄호1);
             Controls.Add(history);
             Controls.Add(name);
             Controls.Add(e);
@@ -415,5 +463,9 @@
         private Button e;
         private Label name;
         private Button history;
+        private Button 괄호1;
+        private Button 괄호2;
+        private Button 대괄1;
+        private Button 대괄2;
     }
 }

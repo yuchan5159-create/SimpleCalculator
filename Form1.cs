@@ -2,10 +2,8 @@ namespace SimpleCalculator
 {
     public partial class Form1 : Form
     {
-        private double _firstValue;
-        private string _operator = "";
-        private bool _isNewInput = true;
-        private string _currentInput = "0";
+        private string _expression = "";
+        private bool _isNewCalculation = true;
         private readonly List<string> _history = [];
 
         public Form1()
@@ -13,100 +11,160 @@ namespace SimpleCalculator
             InitializeComponent();
         }
 
-        
-
-private void AppendNumber(string number)
+        private void AppendNumber(string number)
         {
-            if (_isNewInput)
+            if (_isNewCalculation)
             {
-                _currentInput = number;
-                _isNewInput = false;
+                _expression = number;
+                _isNewCalculation = false;
             }
             else
             {
-                if (_currentInput == "0")
-                    _currentInput = number;
-                else
-                    _currentInput += number;
+                _expression += number;
             }
-            RefreshDisplay();
-        }
-
-        private void RefreshDisplay()
-        {
-            if (_operator != "")
-                Ctext.Text = _firstValue + " " + _operator + " " + _currentInput;
-            else
-                Ctext.Text = _currentInput;
-        }
-
-        private double Evaluate(double first, string op, double second)
-        {
-            return op switch
-            {
-               
- "+" => first + second,
-                "-" => first - second,
-                "×" => first * second,
-                "÷" => second != 0 ? first / second : double.NaN,
-                _ => second
-            };
+            Ctext.Text = _expression;
         }
 
         private void SetOperator(string op)
         {
-            if (!_isNewInput && _operator != "")
+            if (_isNewCalculation && _expression.Length > 0)
+                _isNewCalculation = false;
+
+            if (_expression.Length > 0)
+                _expression += " " + op + " ";
+
+            Ctext.Text = _expression;
+        }
+
+        private void AppendBracket(string bracket)
+        {
+            if (_isNewCalculation)
             {
-                double secondValue = double.Parse(_currentInput);
-                double result = Evaluate(_firstValue, _operator, secondValue);
-                Rtext.Text = result.ToString();
-                _firstValue = result;
+                _expression = bracket;
+                _isNewCalculation = false;
             }
             else
             {
-                _firstValue = double.Parse(_currentInput);
+                _expression += bracket;
             }
-            _operator = op;
-            _currentInput = "";
-            _isNewInput = true;
-            Ctext.Text = _firstValue + " " + _operator;
+            Ctext.Text = _expression;
         }
+
+        #region Expression Parser
+
+        private static void SkipSpaces(string expr, ref int pos)
+        {
+            while (pos < expr.Length && expr[pos] == ' ') pos++;
+        }
+
+        private static double ParseAddSub(string expr, ref int pos)
+        {
+            double result = ParseMulDiv(expr, ref pos);
+            while (pos < expr.Length)
+            {
+                SkipSpaces(expr, ref pos);
+                if (pos >= expr.Length) break;
+                if (expr[pos] == '+') { pos++; result += ParseMulDiv(expr, ref pos); }
+                else if (expr[pos] == '-') { pos++; result -= ParseMulDiv(expr, ref pos); }
+                else break;
+            }
+            return result;
+        }
+
+        private static double ParseMulDiv(string expr, ref int pos)
+        {
+            double result = ParseFactor(expr, ref pos);
+            while (pos < expr.Length)
+            {
+                SkipSpaces(expr, ref pos);
+                if (pos >= expr.Length) break;
+                if (expr[pos] == '*') { pos++; result *= ParseFactor(expr, ref pos); }
+                else if (expr[pos] == '/')
+                {
+                    pos++;
+                    double d = ParseFactor(expr, ref pos);
+                    result = d != 0 ? result / d : double.NaN;
+                }
+                else break;
+            }
+            return result;
+        }
+
+        private static double ParseFactor(string expr, ref int pos)
+        {
+            SkipSpaces(expr, ref pos);
+            if (pos < expr.Length && expr[pos] == '-') { pos++; return -ParseFactor(expr, ref pos); }
+            if (pos < expr.Length && expr[pos] == '+') { pos++; return ParseFactor(expr, ref pos); }
+
+            double value;
+
+            if (pos < expr.Length && (expr[pos] == '(' || expr[pos] == '{'))
+            {
+                char close = expr[pos] == '(' ? ')' : '}';
+                pos++;
+                value = ParseAddSub(expr, ref pos);
+                SkipSpaces(expr, ref pos);
+                if (pos < expr.Length && expr[pos] == close) pos++;
+            }
+            else
+            {
+                SkipSpaces(expr, ref pos);
+                int start = pos;
+                while (pos < expr.Length && (char.IsDigit(expr[pos]) || expr[pos] == '.'))
+                    pos++;
+                value = start < pos ? double.Parse(expr[start..pos]) : 0;
+            }
+
+            // 생략된 곱셈: 2(3+4), (2+3)(4+5), 3{2+1} 등
+            SkipSpaces(expr, ref pos);
+            while (pos < expr.Length && (expr[pos] == '(' || expr[pos] == '{'))
+            {
+                value *= ParseFactor(expr, ref pos);
+            }
+
+            return value;
+        }
+
+        #endregion
 
         private void Calculate()
         {
-            if (_operator == "" || _isNewInput) return;
+            if (string.IsNullOrWhiteSpace(_expression)) return;
+            try
+            {
+                string normalized = _expression
+                    .Replace("×", "*")
+                    .Replace("÷", "/");
+                int pos = 0;
+                double result = ParseAddSub(normalized, ref pos);
 
-            double secondValue = double.Parse(_currentInput);
-            double result = Evaluate(_firstValue, _operator, secondValue);
-
-            string expression = _firstValue + " " + _operator + " " + secondValue + " = " + result;
-            _history.Add(expression);
-            Ctext.Text = expression;
-            Rtext.Text = result.ToString();
-            _firstValue = result;
-            _currentInput = result.ToString();
-            _operator = "";
-            _isNewInput = true;
+                string fullExpr = _expression + " = " + result;
+                _history.Add(fullExpr);
+                Ctext.Text = fullExpr;
+                Rtext.Text = result.ToString();
+                _expression = result.ToString();
+                _isNewCalculation = true;
+            }
+            catch
+            {
+                Rtext.Text = "Error";
+            }
         }
 
-        
- // CE
+        // CE
         private void CE_Click(object sender, EventArgs e)
         {
-            _currentInput = "";
-            _isNewInput = true;
-            RefreshDisplay();
+            _expression = "";
+            _isNewCalculation = true;
+            Ctext.Text = "";
         }
 
-       
-  // C
+        // C
         private void C_Click(object sender, EventArgs e)
         {
             _history.Add("--- C (초기화) ---");
-            _firstValue = 0;
-            _operator = "";
-            _currentInput = "";
-            _isNewInput = true;
+            _expression = "";
+            _isNewCalculation = true;
             Ctext.Text = "";
             Rtext.Text = "";
         }
@@ -123,41 +181,31 @@ private void AppendNumber(string number)
             MessageBox.Show(historyText, "History");
         }
 
-        
- // del
+        // del
         private void del_Click(object sender, EventArgs e)
         {
-            if (!_isNewInput && _currentInput.Length > 0)
+            if (_expression.Length > 0)
             {
-                _currentInput = _currentInput[..^1];
-                if (_currentInput.Length == 0 || _currentInput == "-")
-                {
-                    _currentInput = "";
-                }
-                RefreshDisplay();
-            }
-            else if (_operator != "")
-            {
-                _operator = "";
-                _currentInput = _firstValue.ToString();
-                _firstValue = 0;
-                _isNewInput = false;
-                RefreshDisplay();
-            }
-            else if (_isNewInput && _currentInput.Length > 0)
-            {
-                _currentInput = _currentInput[..^1];
-                if (_currentInput.Length == 0 || _currentInput == "-")
-                {
-                    _currentInput = "";
-                }
-                _isNewInput = false;
-                RefreshDisplay();
+                _expression = _expression.TrimEnd();
+                _expression = _expression[..^1].TrimEnd();
+                _isNewCalculation = _expression.Length == 0;
+                Ctext.Text = _expression;
             }
         }
 
-      
-  // /
+        // ( 
+        private void 괄호1_Click(object sender, EventArgs e) => AppendBracket("(");
+
+        // )
+        private void 괄호2_Click(object sender, EventArgs e) => AppendBracket(")");
+
+        // {
+        private void 대괄1_Click(object sender, EventArgs e) => AppendBracket("{");
+
+        // }
+        private void 대괄2_Click(object sender, EventArgs e) => AppendBracket("}");
+
+        // /
         private void 나누기_Click(object sender, EventArgs e) => SetOperator("÷");
 
         // 7
@@ -169,8 +217,7 @@ private void AppendNumber(string number)
         // 9
         private void b9_Click(object sender, EventArgs e) => AppendNumber("9");
 
-       
- // X (multiply)
+        // X (multiply)
         private void X_Click(object sender, EventArgs e) => SetOperator("×");
 
         // 4
@@ -182,8 +229,7 @@ private void AppendNumber(string number)
         // 6
         private void b6_Click(object sender, EventArgs e) => AppendNumber("6");
 
-       
- // -
+        // -
         private void 빼기_Click(object sender, EventArgs e) => SetOperator("-");
 
         // 1
@@ -201,11 +247,12 @@ private void AppendNumber(string number)
         // +/-
         private void what_Click(object sender, EventArgs e)
         {
-            if (double.TryParse(_currentInput, out double value))
-            {
-                _currentInput = (-value).ToString();
-                RefreshDisplay();
-            }
+            if (string.IsNullOrEmpty(_expression)) return;
+            if (_expression.StartsWith("(-") && _expression.EndsWith(")"))
+                _expression = _expression[2..^1];
+            else
+                _expression = "(-" + _expression + ")";
+            Ctext.Text = _expression;
         }
 
         // 0
@@ -214,16 +261,16 @@ private void AppendNumber(string number)
         // .
         private void dot_Click(object sender, EventArgs e)
         {
-            if (_isNewInput)
+            if (_isNewCalculation)
             {
-                _currentInput = "0.";
-                _isNewInput = false;
+                _expression = "0.";
+                _isNewCalculation = false;
             }
-            else if (!_currentInput.Contains('.'))
+            else
             {
-                _currentInput += ".";
+                _expression += ".";
             }
-            RefreshDisplay();
+            Ctext.Text = _expression;
         }
 
         // =
@@ -233,6 +280,7 @@ private void AppendNumber(string number)
         {
             switch (e.KeyCode)
             {
+                case Keys.D0 when e.Shift: AppendBracket(")"); break;
                 case Keys.D0 or Keys.NumPad0: AppendNumber("0"); break;
                 case Keys.D1 or Keys.NumPad1: AppendNumber("1"); break;
                 case Keys.D2 or Keys.NumPad2: AppendNumber("2"); break;
@@ -243,6 +291,7 @@ private void AppendNumber(string number)
                 case Keys.D7 or Keys.NumPad7: AppendNumber("7"); break;
                 case Keys.D8 when e.Shift: SetOperator("×"); break;
                 case Keys.D8 or Keys.NumPad8: AppendNumber("8"); break;
+                case Keys.D9 when e.Shift: AppendBracket("("); break;
                 case Keys.D9 or Keys.NumPad9: AppendNumber("9"); break;
                 case Keys.Add or Keys.Oemplus when e.Shift: SetOperator("+"); break;
                 case Keys.Subtract or Keys.OemMinus: SetOperator("-"); break;
@@ -280,7 +329,8 @@ private void AppendNumber(string number)
                 { b7, b8, b9, X },
                 { b4, b5, b6, 빼기 },
                 { b1, b2, b3, 더하기 },
-                { what, b0, dot, this.e }
+                { what, b0, dot, this.e },
+                { 괄호1, 괄호2, 대괄1, 대괄2 }
             };
 
             for (int row = 0; row < grid.GetLength(0); row++)
