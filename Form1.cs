@@ -5,6 +5,7 @@ namespace SimpleCalculator
         private double _firstValue;
         private string _operator = "";
         private bool _isNewInput = true;
+        private string _currentInput = "0";
 
         public Form1()
         {
@@ -15,43 +16,69 @@ namespace SimpleCalculator
         {
             if (_isNewInput)
             {
-                textBox1.Text = number;
+                _currentInput = number;
                 _isNewInput = false;
             }
             else
             {
-                textBox1.Text += number;
+                if (_currentInput == "0")
+                    _currentInput = number;
+                else
+                    _currentInput += number;
             }
+            RefreshDisplay();
+        }
+
+        private void RefreshDisplay()
+        {
+            if (_operator != "")
+                textBox1.Text = _firstValue + " " + _operator + " " + _currentInput;
+            else
+                textBox1.Text = _currentInput;
+        }
+
+        private double Evaluate(double first, string op, double second)
+        {
+            return op switch
+            {
+                "+" => first + second,
+                "-" => first - second,
+                "×" => first * second,
+                "%" => first / 100.0 * second,
+                _ => second
+            };
         }
 
         private void SetOperator(string op)
         {
-            if (!_isNewInput)
+            if (!_isNewInput && _operator != "")
             {
-                Calculate();
+                double secondValue = double.Parse(_currentInput);
+                double result = Evaluate(_firstValue, _operator, secondValue);
+                textBox2.Text = result.ToString();
+                _firstValue = result;
             }
-            _firstValue = double.Parse(textBox1.Text);
+            else
+            {
+                _firstValue = double.Parse(_currentInput);
+            }
             _operator = op;
-            textBox2.Text = _firstValue + " " + _operator;
+            _currentInput = "";
             _isNewInput = true;
+            textBox1.Text = _firstValue + " " + _operator;
         }
 
         private void Calculate()
         {
             if (_operator == "" || _isNewInput) return;
 
-            double secondValue = double.Parse(textBox1.Text);
-            double result = _operator switch
-            {
-                "+" => _firstValue + secondValue,
-                "-" => _firstValue - secondValue,
-                "×" => _firstValue * secondValue,
-                "%" => _firstValue / 100.0 * secondValue,
-                _ => secondValue
-            };
+            double secondValue = double.Parse(_currentInput);
+            double result = Evaluate(_firstValue, _operator, secondValue);
 
-            textBox1.Text = result.ToString();
-            textBox2.Text = "";
+            textBox1.Text = _firstValue + " " + _operator + " " + secondValue;
+            textBox2.Text = result.ToString();
+            _firstValue = result;
+            _currentInput = result.ToString();
             _operator = "";
             _isNewInput = true;
         }
@@ -59,31 +86,34 @@ namespace SimpleCalculator
         // CE
         private void button1_Click(object sender, EventArgs e)
         {
-            textBox1.Text = "0";
+            _currentInput = "0";
             _isNewInput = true;
+            RefreshDisplay();
         }
 
         // C
         private void button2_Click(object sender, EventArgs e)
         {
-            textBox1.Text = "0";
-            textBox2.Text = "";
             _firstValue = 0;
             _operator = "";
+            _currentInput = "0";
             _isNewInput = true;
+            textBox1.Text = "0";
+            textBox2.Text = "";
         }
 
         // del
         private void button3_Click(object sender, EventArgs e)
         {
-            if (!_isNewInput && textBox1.Text.Length > 0)
+            if (!_isNewInput && _currentInput.Length > 0)
             {
-                textBox1.Text = textBox1.Text[..^1];
-                if (textBox1.Text.Length == 0 || textBox1.Text == "-")
+                _currentInput = _currentInput[..^1];
+                if (_currentInput.Length == 0 || _currentInput == "-")
                 {
-                    textBox1.Text = "0";
+                    _currentInput = "0";
                     _isNewInput = true;
                 }
+                RefreshDisplay();
             }
         }
 
@@ -129,9 +159,10 @@ namespace SimpleCalculator
         // +/-
         private void button17_Click(object sender, EventArgs e)
         {
-            if (double.TryParse(textBox1.Text, out double value))
+            if (double.TryParse(_currentInput, out double value))
             {
-                textBox1.Text = (-value).ToString();
+                _currentInput = (-value).ToString();
+                RefreshDisplay();
             }
         }
 
@@ -143,13 +174,14 @@ namespace SimpleCalculator
         {
             if (_isNewInput)
             {
-                textBox1.Text = "0.";
+                _currentInput = "0.";
                 _isNewInput = false;
             }
-            else if (!textBox1.Text.Contains('.'))
+            else if (!_currentInput.Contains('.'))
             {
-                textBox1.Text += ".";
+                _currentInput += ".";
             }
+            RefreshDisplay();
         }
 
         // =
