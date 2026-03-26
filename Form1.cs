@@ -44,7 +44,7 @@ namespace SimpleCalculator
                 "+" => first + second,
                 "-" => first - second,
                 "×" => first * second,
-                "%" => first / 100.0 * second,
+                "÷" => second != 0 ? first / second : double.NaN,
                 _ => second
             };
         }
@@ -117,8 +117,8 @@ namespace SimpleCalculator
             }
         }
 
-        // %
-        private void button4_Click(object sender, EventArgs e) => SetOperator("%");
+        // /
+        private void button4_Click(object sender, EventArgs e) => SetOperator("÷");
 
         // 7
         private void button5_Click(object sender, EventArgs e) => AppendNumber("7");
@@ -186,6 +186,33 @@ namespace SimpleCalculator
 
         // =
         private void button20_Click(object sender, EventArgs e) => Calculate();
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.D0 or Keys.NumPad0: AppendNumber("0"); break;
+                case Keys.D1 or Keys.NumPad1: AppendNumber("1"); break;
+                case Keys.D2 or Keys.NumPad2: AppendNumber("2"); break;
+                case Keys.D3 or Keys.NumPad3: AppendNumber("3"); break;
+                case Keys.D4 or Keys.NumPad4: AppendNumber("4"); break;
+                case Keys.D5 or Keys.NumPad5: AppendNumber("5"); break;
+                case Keys.D6 or Keys.NumPad6: AppendNumber("6"); break;
+                case Keys.D7 or Keys.NumPad7: AppendNumber("7"); break;
+                case Keys.D8 or Keys.NumPad8: AppendNumber("8"); break;
+                case Keys.D9 or Keys.NumPad9: AppendNumber("9"); break;
+                case Keys.Add or Keys.Oemplus when e.Shift: SetOperator("+"); break;
+                case Keys.Subtract or Keys.OemMinus: SetOperator("-"); break;
+                case Keys.Multiply: SetOperator("×"); break;
+                case Keys.Divide or Keys.Oem2: SetOperator("÷"); break;
+                case Keys.Enter: Calculate(); break;
+                case Keys.Back: button3_Click(sender, e); break;
+                case Keys.Escape: button2_Click(sender, e); break;
+                case Keys.Delete: button1_Click(sender, e); break;
+                case Keys.Decimal or Keys.OemPeriod: button19_Click(sender, e); break;
+            }
+            e.SuppressKeyPress = true;
+        }
 
         private void Form1_Load(object sender, EventArgs e)
         {

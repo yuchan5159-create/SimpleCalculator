@@ -103,7 +103,7 @@
             button4.Name = "button4";
             button4.Size = new Size(94, 29);
             button4.TabIndex = 5;
-            button4.Text = "％";
+            button4.Text = "/";
             button4.UseVisualStyleBackColor = true;
             button4.Click += button4_Click;
             // 
@@ -305,8 +305,10 @@
             Controls.Add(button1);
             Controls.Add(textBox2);
             Controls.Add(textBox1);
+            KeyPreview = true;
             Name = "Form1";
             Text = "Form1";
+            KeyDown += Form1_KeyDown;
             Load += Form1_Load;
             ResumeLayout(false);
             PerformLayout();
