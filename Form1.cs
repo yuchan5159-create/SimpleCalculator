@@ -6,6 +6,7 @@ namespace SimpleCalculator
         private string _operator = "";
         private bool _isNewInput = true;
         private string _currentInput = "0";
+        private readonly List<string> _history = [];
 
         public Form1()
         {
@@ -78,7 +79,9 @@ private void AppendNumber(string number)
             double secondValue = double.Parse(_currentInput);
             double result = Evaluate(_firstValue, _operator, secondValue);
 
-            textBox1.Text = _firstValue + " " + _operator + " " + secondValue;
+            string expression = _firstValue + " " + _operator + " " + secondValue + " = " + result;
+            _history.Add(expression);
+            textBox1.Text = expression;
             textBox2.Text = result.ToString();
             _firstValue = result;
             _currentInput = result.ToString();
@@ -90,7 +93,7 @@ private void AppendNumber(string number)
  // CE
         private void button1_Click(object sender, EventArgs e)
         {
-            _currentInput = "0";
+            _currentInput = "";
             _isNewInput = true;
             RefreshDisplay();
         }
@@ -99,12 +102,25 @@ private void AppendNumber(string number)
   // C
         private void button2_Click(object sender, EventArgs e)
         {
+            _history.Add("--- C (초기화) ---");
             _firstValue = 0;
             _operator = "";
-            _currentInput = "0";
+            _currentInput = "";
             _isNewInput = true;
-            textBox1.Text = "0";
+            textBox1.Text = "";
             textBox2.Text = "";
+        }
+
+        // History
+        private void button21_Click(object sender, EventArgs e)
+        {
+            if (_history.Count == 0)
+            {
+                MessageBox.Show("기록이 없습니다.", "History");
+                return;
+            }
+            string historyText = string.Join(Environment.NewLine, _history);
+            MessageBox.Show(historyText, "History");
         }
 
         
@@ -116,9 +132,26 @@ private void AppendNumber(string number)
                 _currentInput = _currentInput[..^1];
                 if (_currentInput.Length == 0 || _currentInput == "-")
                 {
-                    _currentInput = "0";
-                    _isNewInput = true;
+                    _currentInput = "";
                 }
+                RefreshDisplay();
+            }
+            else if (_operator != "")
+            {
+                _operator = "";
+                _currentInput = _firstValue.ToString();
+                _firstValue = 0;
+                _isNewInput = false;
+                RefreshDisplay();
+            }
+            else if (_isNewInput && _currentInput.Length > 0)
+            {
+                _currentInput = _currentInput[..^1];
+                if (_currentInput.Length == 0 || _currentInput == "-")
+                {
+                    _currentInput = "";
+                }
+                _isNewInput = false;
                 RefreshDisplay();
             }
         }
