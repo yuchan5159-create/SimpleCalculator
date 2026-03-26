@@ -44,7 +44,7 @@ namespace SimpleCalculator
                 "+" => first + second,
                 "-" => first - second,
                 "×" => first * second,
-                "%" => first / 100.0 * second,
+                "÷" => second != 0 ? first / second : double.NaN,
                 _ => second
             };
         }
@@ -117,8 +117,8 @@ namespace SimpleCalculator
             }
         }
 
-        // %
-        private void button4_Click(object sender, EventArgs e) => SetOperator("%");
+        // /
+        private void button4_Click(object sender, EventArgs e) => SetOperator("÷");
 
         // 7
         private void button5_Click(object sender, EventArgs e) => AppendNumber("7");
