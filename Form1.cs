@@ -43,7 +43,8 @@ private void AppendNumber(string number)
         {
             return op switch
             {
-                "+" => first + second,
+               
+ "+" => first + second,
                 "-" => first - second,
                 "×" => first * second,
                 "÷" => second != 0 ? first / second : double.NaN,
@@ -119,7 +120,8 @@ private void AppendNumber(string number)
             }
         }
 
-        // /
+      
+  // /
         private void button4_Click(object sender, EventArgs e) => SetOperator("÷");
 
         // 7
@@ -131,7 +133,8 @@ private void AppendNumber(string number)
         // 9
         private void button7_Click(object sender, EventArgs e) => AppendNumber("9");
 
-        // X (multiply)
+       
+ // X (multiply)
         private void button8_Click(object sender, EventArgs e) => SetOperator("×");
 
         // 4
@@ -143,7 +146,8 @@ private void AppendNumber(string number)
         // 6
         private void button11_Click(object sender, EventArgs e) => AppendNumber("6");
 
-        // -
+       
+ // -
         private void button12_Click(object sender, EventArgs e) => SetOperator("-");
 
         // 1
