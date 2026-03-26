@@ -12,7 +12,9 @@ namespace SimpleCalculator
             InitializeComponent();
         }
 
-        private void AppendNumber(string number)
+        
+
+private void AppendNumber(string number)
         {
             if (_isNewInput)
             {
